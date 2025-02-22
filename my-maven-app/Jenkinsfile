@@ -1,0 +1,48 @@
+pipeline {
+    agent any
+
+    environment {
+        // Replace with your actual EC2 instance details and artifact name.
+        EC2_HOST = "ubuntu@3.235.142.37"
+        ARTIFACT_NAME = "my-maven-app-1.0-SNAPSHOT.jar"
+        // AWS_SSH_KEY should be configured in Jenkins credentials and injected as an environment variable.
+    }
+
+    stages {
+        stage("Checkout") {
+            steps {
+                checkout scm
+            }
+        }
+        stage("Build") {
+            steps {
+                sh "mvn clean package"
+            }
+        }
+        stage("Deploy to EC2") {
+            steps {
+                // Copy the built artifact from the target folder to the EC2 instance.
+                sh "scp -i \$AWS_SSH_KEY target/\$ARTIFACT_NAME \$EC2_HOST:/home/ubuntu/"
+                // Execute remote commands on the EC2 instance to deploy the application.
+                sh """
+                   ssh -i \$AWS_SSH_KEY \$EC2_HOST <<'EOF'
+                   # Stop any running Java processes (if needed)
+                   pkill -f java || true
+                   # Run the application in the background, logging output to app.log
+                   nohup java -jar /home/ubuntu/\$ARTIFACT_NAME > app.log 2>&1 &
+                   EOF
+                   """
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "CI/CD Pipeline executed successfully!"
+            echo "Access your application at: http://3.235.142.37:8080"
+        }
+        failure {
+            echo "Pipeline failed. Please check the logs for details."
+        }
+    }
+}
