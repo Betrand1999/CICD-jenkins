@@ -2,15 +2,10 @@ pipeline {
     agent any
 
     environment {
-        ARTIFACT_NAME = "my-app-1.0-SNAPSHOT.jar"
+        SONARQUBE_URL = "http://3.235.142.37:9000"  // Your SonarQube Server
     }
 
     stages {
-        stage("Checkout") {
-            steps {
-                checkout scm
-            }
-        }
         stage("Build") {
             steps {
                 dir("my-app") {
@@ -18,15 +13,22 @@ pipeline {
                 }
             }
         }
+
+        stage("SonarQube Analysis") {
+            steps {
+                dir("my-app") {
+                    sh "sonar-scanner"
+                }
+            }
+        }
     }
 
     post {
         success {
-            echo "Build completed successfully!"
-            echo "Artifact generated: target/${ARTIFACT_NAME}"
+            echo "Pipeline completed successfully!"
         }
         failure {
-            echo "Build failed. Check logs for details."
+            echo "Pipeline failed. Check logs for details."
         }
     }
 }
