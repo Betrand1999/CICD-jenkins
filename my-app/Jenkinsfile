@@ -1,16 +1,7 @@
 pipeline {
     agent any
 
-    environment {
-        ARTIFACT_NAME = "my-app-1.0-SNAPSHOT.jar"
-    }
-
     stages {
-        stage("Checkout") {
-            steps {
-                checkout scm
-            }
-        }
         stage("Build") {
             steps {
                 dir("my-app") {
@@ -18,15 +9,27 @@ pipeline {
                 }
             }
         }
+
+        stage("SonarQube Analysis") {
+            steps {
+                dir("my-app") {
+                    script {
+                        sh """
+                            cd \$WORKSPACE/my-app
+                            sonar-scanner
+                        """
+                    }
+                }
+            }
+        }
     }
 
     post {
         success {
-            echo "Build completed successfully!"
-            echo "Artifact generated: target/${ARTIFACT_NAME}"
+            echo "Pipeline completed successfully!"
         }
         failure {
-            echo "Build failed. Check logs for details."
+            echo "Pipeline failed. Check logs for details."
         }
     }
-} 
+}
