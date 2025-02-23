@@ -1,3 +1,43 @@
+// pipeline {
+//     agent any
+
+//     stages {
+//         stage("Build") {
+//             steps {
+//                 dir("my-app") {
+//                     sh "mvn clean package"
+//                 }
+//             }
+//         }
+
+//         stage("SonarQube Analysis") {
+//             steps {
+//                 dir("my-app") {
+//                     script {
+//                         sh """
+//                             echo "Navigating to Jenkins workspace in my-app directory"
+//                             cd \$WORKSPACE/my-app
+//                             echo "Running SonarScanner..."
+//                             /opt/sonar-scanner/bin/sonar-scanner -Dsonar.projectBaseDir=\$WORKSPACE/my-app
+//                         """
+//                     }
+//                 }
+//             }
+//         }
+//     }
+
+//     post {
+//         success {
+//             echo "Pipeline completed successfully!"
+//         }
+//         failure {
+//             echo "Pipeline failed. Check logs for details."
+//         }
+//     }
+// }
+
+
+// ############################################### /////
 pipeline {
     agent any
 
@@ -21,6 +61,15 @@ pipeline {
                             /opt/sonar-scanner/bin/sonar-scanner -Dsonar.projectBaseDir=\$WORKSPACE/my-app
                         """
                     }
+                }
+            }
+        }
+
+        stage("Deploy (Run the App)") {
+            steps {
+                dir("my-app") {
+                    echo "Running the newly built application..."
+                    sh "java -jar target/my-app-1.0-SNAPSHOT.jar"
                 }
             }
         }
