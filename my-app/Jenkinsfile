@@ -2,6 +2,20 @@ pipeline {
     agent any
 
     stages {
+        stage("Cleanup Workspace") {
+            steps {
+                script {
+                    sh "sudo rm -rf \$WORKSPACE/*"
+                }
+            }
+        }
+
+        stage("Checkout Code") {
+            steps {
+                checkout scm
+            }
+        }
+
         stage("Build") {
             steps {
                 dir("my-app") {
@@ -13,12 +27,7 @@ pipeline {
         stage("SonarQube Analysis") {
             steps {
                 dir("my-app") {
-                    script {
-                        sh """
-                            cd \$WORKSPACE/my-app
-                            sonar-scanner
-                        """
-                    }
+                    sh "sonar-scanner"
                 }
             }
         }
