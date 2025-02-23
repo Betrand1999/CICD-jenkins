@@ -2,20 +2,6 @@ pipeline {
     agent any
 
     stages {
-        stage("Cleanup Workspace") {
-            steps {
-                script {
-                    sh "rm -rf \$WORKSPACE/*"
-                }
-            }
-        }
-
-        stage("Checkout Code") {
-            steps {
-                checkout scm
-            }
-        }
-
         stage("Build") {
             steps {
                 dir("my-app") {
@@ -27,7 +13,9 @@ pipeline {
         stage("SonarQube Analysis") {
             steps {
                 dir("my-app") {
-                    sh "sonar-scanner"
+                    script {
+                        sh "/opt/sonar-scanner/bin/sonar-scanner -Dsonar.projectBaseDir=$WORKSPACE/my-app"
+                    }
                 }
             }
         }
