@@ -14,7 +14,12 @@ pipeline {
             steps {
                 dir("my-app") {
                     script {
-                        sh "/opt/sonar-scanner/bin/sonar-scanner -Dsonar.projectBaseDir=$WORKSPACE/my-app"
+                        sh """
+                            echo "Navigating to Jenkins workspace in my-app directory"
+                            cd \$WORKSPACE/my-app
+                            echo "Running SonarScanner..."
+                            /opt/sonar-scanner/bin/sonar-scanner -Dsonar.projectBaseDir=\$WORKSPACE/my-app
+                        """
                     }
                 }
             }
