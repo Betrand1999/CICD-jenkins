@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        SONARQUBE_URL = "http://3.235.142.37:9000"  // Your SonarQube Server
-    }
-
     stages {
         stage("Build") {
             steps {
